@@ -68,7 +68,7 @@ class Radio {
 	}
 	
 	
-	public static void AgênciNacional_audio(String link) {
+	public static void AgÃªnciNacional_audio(String link) {
 		
 		String content = Main.Capture(link);
 		
@@ -79,9 +79,9 @@ class Radio {
 			content = content.substring(indexMP3+10,indexTitle);
 			int index = content.indexOf("\"");
 			content = content.substring(0,index);
-			System.out.println("AgênciNacional: " + content);
+			System.out.println("AgÃªnciNacional: " + content);
 		
-			Main.MP3Download(content,"AgênciNacional_" + content.substring(content.lastIndexOf("/")+1));
+			Main.MP3Download(content,"AgÃªnciNacional_" + content.substring(content.lastIndexOf("/")+1));
 		}
 	}
 	
