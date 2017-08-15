@@ -1,0 +1,8 @@
+URL_API_ARTICLES='http://localhost/radio/article.json'
+set | grep URL_API_ARTICLES
+PATH_FILENAME_LIST='tempListLinksRadios.txt' 
+set | grep PATH_FILENAME_LIST
+PATH_DIR_AUDIOS='/var/www/html/radios/' 
+set | grep PATH_DIR_AUDIOS
+LIST_DOMAINS_RADIOS='cbn,BandNews,AgênciNacional' 
+set | grep LIST_DOMAINS_RADIOS

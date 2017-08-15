@@ -19,8 +19,8 @@ public class Main {
 	static String DEFAULT_PATH_SAVE = "./";
 
 	public static void main (String args[]) {
-		// args[0] = Lista de Links a serem baixados
-		// arg[1]  = endereço de onde será salvo
+		// args[0] = Endereço do Arquivo da Lista de Links a serem baixados, exemplo: links_radio.txt
+		// args[1] = Endereço de onde será salvo, exemplo: /var/www/radios/2017-08-10/
 
 
 		if (args.length==0)
