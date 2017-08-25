@@ -57,7 +57,7 @@ def getArticles():
 """
 Salva os links em um arquivo e retorna True ou False se conseguiu salvar.
 """
-def saveListFile(articles):
+def saveListLinksFile(articles):
 	links_str = getLinesToWrite(articles);
 
 	# links_str = "\n".join(x for x in links);
@@ -117,6 +117,9 @@ def downloadAudios(articles):
 		raise e
 	pass
 
+"""
+Ler o arquivo gerado pelo java para saber os audios que foram salvos
+"""
 def readAudiosDownloadeds():
 	downloadeds = {}
 	f = open(FILENAME_DOWNLOADEDS, 'r')
@@ -151,13 +154,13 @@ def main():
 	articles = getArticles(); 	
 
 	# Gera a lista e salva no arquivo FILENAME_LIST
-	saved = saveListFile(articles);
+	saved = saveListLinksFile(articles);
 
 	try:
 		# Baixa os áudios na pasta correta e Adiciona um campo 'audio'
 		if (saved):
 			articles = downloadAudios(articles);   #[{"id":"10", "url":"http://",  "audio":{"contentUrl":"". "filename":"radio_id", "url":""}}]
-			print json.dumps(articles, indent=4)
+			# print json.dumps(articles, indent=4)
 
 		# Atualiza no banco usando o endpoint article['audio'] =  { contentUrl: 'http...' } 
 		updateArticles(articles);
