@@ -1,22 +1,26 @@
 package AudioDownload;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.FileOutputStream;
+import java.io.OutputStream;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.io.OutputStream;
-import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
-import java.io.FileReader;
+import java.net.MalformedURLException;
+import java.net.HttpURLConnection;
 import java.util.ArrayList;
 
 public class Main {
 	
 	static String DEFAULT_PATH_SAVE = "./";
+	static String DEFAULT_FILENAME = "Downloadeds.txt";
+	static String LinksBaixados = "";
 
 	public static void main (String args[]) {
 		// args[0] = Endereço do Arquivo da Lista de Links a serem baixados, exemplo: links_radio.txt
@@ -24,7 +28,7 @@ public class Main {
 
 
 		if (args.length==0)
-			return;
+			return ;
 
 		if (args.length>1)
 			DEFAULT_PATH_SAVE = args[1];
@@ -37,14 +41,14 @@ public class Main {
 
 			
 			String sCurrentLine;
-			while ((sCurrentLine = br.readLine()) != null) {
+			while ((sCurrentLine = br.readLine()) != null) {				
 				links.add(sCurrentLine);
-				System.out.println(sCurrentLine);
+				// System.out.println(sCurrentLine);
 			}
 
 		} catch (IOException e) {
 			e.printStackTrace();
-			return;
+			return ;
 		}		
 
 		for (String link : links) {
@@ -59,7 +63,21 @@ public class Main {
 			
 			if (link .contains("radioagencianacional")) 
 				Radio.AgênciNacional_audio(link );
-		}	
+		}
+
+		saveDownloadeds(LinksBaixados);
+
+		
+	}
+
+	public static void saveDownloadeds(String content){
+		try{
+			BufferedWriter  writer = new BufferedWriter( new FileWriter( DEFAULT_FILENAME));
+			writer.write(content);
+			writer.close();
+		}catch (IOException e) {
+			e.printStackTrace();
+		}
 	}
 	
 	
@@ -81,6 +99,7 @@ public class Main {
 				br.close();
 			} 
 			//con.disconnect();
+
 		} 
 		catch (MalformedURLException e) {
 			e.printStackTrace();
@@ -92,9 +111,12 @@ public class Main {
 		return output;
 	}
 
-	
+
 	public static void MP3Download(String link, String filename) {
 		String filepath = DEFAULT_PATH_SAVE + "/" + filename; 
+
+		LinksBaixados += filename.split(".mp3")[0] + "," + link+ "," + filepath +"\n";
+		System.out.println(link);		
 
 		try {
 			URLConnection conn = new URL(link).openConnection();

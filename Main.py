@@ -23,13 +23,14 @@ import subprocess
 env = Env()
 
 URL_API_ARTICLES = "http://localhost/radio/article.json"
-PATH_FILENAME_LIST = "tempListLinksRadios.txt"
+FILENAME_LIST = "ListLinksRadios.txt"
+FILENAME_DOWNLOADEDS = "Downloadeds.txt"
 PATH_DIR_AUDIOS = "/var/www/html/radios/"
 LIST_DOMAINS_RADIOS = []
 JAVA_PROGRAM = 'AudioDownload.Main'
 
 # URL_API_ARTICLES = env('URL_API_ARTICLES')
-# PATH_FILENAME_LIST = env('PATH_FILENAME_LIST')
+# FILENAME_LIST = env('FILENAME_LIST')
 # PATH_DIR_AUDIOS = env('PATH_DIR_AUDIOS')
 # LIST_DOMAINS_RADIOS = env.list('LIST_DOMAINS_RADIOS')
 
@@ -57,20 +58,20 @@ def getArticles():
 Salva os links em um arquivo e retorna True ou False se conseguiu salvar.
 """
 def saveListFile(articles):
-	links = getLinks(articles); 
-	links_str = "\n".join(x for x in links);
-	return saveInFile(PATH_FILENAME_LIST, links_str);
+	links_str = getLinesToWrite(articles);
+
+	# links_str = "\n".join(x for x in links);
+	return saveInFile(FILENAME_LIST, links_str);
 
 """
 Gera os links a partir dos artigos e retorna uma lista dos links
 """
-def getLinks(articles):
-	links = []	
+def getLinesToWrite(articles):
+	lines = ""	
 	for article in articles:
-		link = article['url']
-		links.append(link)
+		lines += article['url'] + "," + article["_id"] + "\n";
 		pass
-	return links
+	return lines
 	pass
 	
 """
@@ -99,23 +100,32 @@ def downloadAudios(articles):
 	print PATH_DIR_AUDIOS
 	try:
 				
-		downloaded =  subprocess.call(['java', JAVA_PROGRAM,PATH_FILENAME_LIST, PATH_DIR_AUDIOS]) 
-		listAudiosDownloaded = checkDownloadedsAudios();
-		print listAudiosDownloaded
+		subprocess.call(['java', JAVA_PROGRAM,FILENAME_LIST, PATH_DIR_AUDIOS]) 
+		downloadeds = readAudiosDownloadeds();
+		
+		for article in articles:
+			paths = downloadeds[article["_id"]] 
+			audio = {}
+			audio["contentUrl"] = paths[0]
+			audio["filename"] = paths[1]
+			article["audio"] = audio
+			pass		
+
+		return articles
+
 	except Exception as e:
 		raise e
 	pass
 
-def checkDownloadedsAudios():
-	global PATH_DIR_AUDIOS	
-	listAudiosDownloaded = [];
-	try:
-		listAudiosDownloaded = [join(PATH_DIR_AUDIOS,f) for f in listdir(PATH_DIR_AUDIOS) if isfile(join(PATH_DIR_AUDIOS, f))]		
-	except Exception as e:
-		listAudiosDownloaded = []
+def readAudiosDownloadeds():
+	downloadeds = {}
+	f = open(FILENAME_DOWNLOADEDS, 'r')
+	for line in f.readlines():
+		line  = line.replace("\n","")
+		_id = line.split(",")[0]
+		downloadeds[_id] = [line.split(",")[1],line.split(",")[2]]		
+	return downloadeds
 	
-	return listAudiosDownloaded;
-	pass
 
 """
 Atualiza os artigos no endpoints URL_API_ARTICLES 
@@ -140,13 +150,14 @@ def main():
 	# Procura os ultimos links das rádios 
 	articles = getArticles(); 	
 
-	# Gera a lista e salva no arquivo PATH_FILENAME_LIST
+	# Gera a lista e salva no arquivo FILENAME_LIST
 	saved = saveListFile(articles);
 
 	try:
 		# Baixa os áudios na pasta correta e Adiciona um campo 'audio'
 		if (saved):
 			articles = downloadAudios(articles);   #[{"id":"10", "url":"http://",  "audio":{"contentUrl":"". "filename":"radio_id", "url":""}}]
+			print json.dumps(articles, indent=4)
 
 		# Atualiza no banco usando o endpoint article['audio'] =  { contentUrl: 'http...' } 
 		updateArticles(articles);
